@@ -25,6 +25,10 @@ namespace Thiruvizha.Player.States
                         RaycastHit hit;
                         if (Physics.Raycast(ray,out hit,100, player.ignoreBuildings))
                             player.selectedBuilding.transform.position = hit.point;
+                        if(!GridManager.instance.CheckBuildingPositionisValid(player.selectedBuilding))
+                        {
+                            Debug.Log("Can't Place Building here");
+                        }
                         break;
 
                     case UnityEngine.InputSystem.TouchPhase.Ended:

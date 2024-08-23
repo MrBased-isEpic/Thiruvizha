@@ -7,5 +7,6 @@ namespace Thiruvizha.Grids
     public class BaseBuilding : BaseTile
     {
         public Vector2Int gridPosition = Vector2Int.zero;
+        public BuildingTilesSO buildingTilesSO;
     }
 }

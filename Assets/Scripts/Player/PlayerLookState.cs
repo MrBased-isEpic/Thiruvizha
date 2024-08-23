@@ -27,7 +27,7 @@ namespace Thiruvizha.Player.States
         public override void UpdateState(PlayerStateContext player)
         {
             if (EnTouch.Touch.activeFingers.Count > 0)
-            {
+            {   
                 if (EnTouch.Touch.activeFingers.Count == 2)
                 {
 
@@ -77,7 +77,7 @@ namespace Thiruvizha.Player.States
                                     
                                 }
                             }
-                            else { Debug.Log(holdDuration); }
+                            else {  }
                             break;
                         
                     }

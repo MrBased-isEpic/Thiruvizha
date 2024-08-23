@@ -94,7 +94,7 @@ PrefabInstance:
     - target: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
         type: 3}
@@ -104,7 +104,7 @@ PrefabInstance:
     - target: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
         type: 3}
@@ -184,6 +184,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8813326109833167314}
+    - targetCorrespondingSourceObject: {fileID: 7578041594241551857, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6004827063393456022}
   m_SourcePrefab: {fileID: 100100000, guid: 2a9dbb9f0d6f5464a8c1918542f6d932, type: 3}
 --- !u!1 &4477726520102712994 stripped
 GameObject:
@@ -204,6 +208,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridPosition: {x: 5, y: 5}
+--- !u!208 &6004827063393456022
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4477726520102712994}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.5, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!4 &6829572017947961375 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
