@@ -208,6 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridPosition: {x: 5, y: 5}
+  buildingTilesSO: {fileID: 11400000, guid: 5a68f63c72640da42a179f8e74f14d0c, type: 2}
 --- !u!208 &6004827063393456022
 NavMeshObstacle:
   m_ObjectHideFlags: 0

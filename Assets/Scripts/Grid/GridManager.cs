@@ -9,6 +9,7 @@ namespace Thiruvizha.Grids
     public class GridManager : MonoBehaviour
     {
         private Grid grid;
+        public Transform PlacePlane;
         public Transform BaseTile;
         public Transform TwosizeBuilding;
         public Transform BaseBuilding;
@@ -32,7 +33,7 @@ namespace Thiruvizha.Grids
             {
                 for (int j = 0; j < 10; j++)// Ten times on the y
                 {  
-                    BaseTile tile = Instantiate(BaseTile, grid.GetCellCenterWorld(new Vector3Int(i, 0, j)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
+                    BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(i, 0, j)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
                     mapTiles[i,j] = tile;
                 }
             }
@@ -51,7 +52,7 @@ namespace Thiruvizha.Grids
             if (building.gridPosition != Vector2Int.zero)// Check if it was assigned
             {
                 mapTiles[building.gridPosition.x, building.gridPosition.y] = targetTile;
-                targetTile.transform.position = grid.GetCellCenterWorld(new Vector3Int(building.gridPosition.x, 0, building.gridPosition.y));
+                targetTile.transform.position = grid.CellToWorld(new Vector3Int(building.gridPosition.x, 0, building.gridPosition.y));
             }
             else// If it wasn't assigned yet..
             {
@@ -60,7 +61,7 @@ namespace Thiruvizha.Grids
 
             mapTiles[targetPos.x, targetPos.z] = building;
             building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
-            building.transform.position = grid.GetCellCenterWorld(targetPos);
+            building.transform.position = grid.CellToWorld(targetPos);
 
             if (building.buildingTilesSO == null) return;// This would mean that the building is single tiled one, so there is no shape.
 
@@ -81,7 +82,7 @@ namespace Thiruvizha.Grids
 
             mapTiles[targetPos.x, targetPos.z] = building;
             building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
-            building.transform.position = targetPos;
+            building.transform.position = grid.CellToWorld(targetPos);
 
 
             if (building.buildingTilesSO == null) return;// This would mean that the building is single tiled one, so there is no shape.
@@ -97,6 +98,7 @@ namespace Thiruvizha.Grids
         public bool CheckBuildingPositionisValid(BaseBuilding building)
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
+            PlacePlane.transform.position = grid.CellToWorld(targetCenterPos);
             if (mapTiles[targetCenterPos.x, targetCenterPos.z] as BaseBuilding != null) return false;// The center position of the baseBuilding is already occupied by another basebuilding.
 
             if(building.buildingTilesSO == null) return true;

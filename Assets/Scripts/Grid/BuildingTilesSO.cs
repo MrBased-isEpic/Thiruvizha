@@ -7,6 +7,7 @@ namespace Thiruvizha.Grids
     [CreateAssetMenu (fileName = "BuildingTilesSO")]
     public class BuildingTilesSO : ScriptableObject
     {
+        public BaseBuilding.BuildingType buildingType;
         public Vector2Int[] ShapeTiles;
     }
 }
