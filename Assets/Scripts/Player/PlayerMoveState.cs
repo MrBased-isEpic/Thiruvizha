@@ -32,7 +32,14 @@ namespace Thiruvizha.Player.States
                         break;
 
                     case UnityEngine.InputSystem.TouchPhase.Ended:
-                        GridManager.instance.PlaceBaseBuilding(player.selectedBuilding);
+                        if (!GridManager.instance.CheckBuildingPositionisValid(player.selectedBuilding))
+                        {
+                            Debug.Log("Not gonna place here");
+                            GridManager.instance.PlaceBaseBuilding(player.selectedBuilding, new Vector3Int(player.selectedBuilding.gridPosition.x, 0, player.selectedBuilding.gridPosition.y));
+
+                        }
+                        else
+                            GridManager.instance.PlaceBaseBuilding(player.selectedBuilding);
                         player.SwitchState(PlayerStateContext.PlayerState.look);
                         break;
                 }

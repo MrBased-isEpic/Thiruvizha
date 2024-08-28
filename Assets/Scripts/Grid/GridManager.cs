@@ -38,9 +38,9 @@ namespace Thiruvizha.Grids
                 }
             }
             BaseBuilding twoSizeBuilding = Instantiate(TwosizeBuilding).GetComponent<BaseBuilding>();
-            PlaceBaseBuilding(twoSizeBuilding, new Vector3Int(5, 0, 5));
+            PlaceBaseBuilding(twoSizeBuilding, new Vector3Int(8, 0, 8));
             BaseBuilding baseBuilding = Instantiate(BaseBuilding).GetComponent<BaseBuilding>();
-            PlaceBaseBuilding(baseBuilding, new Vector3Int(5, 0, 7));
+            PlaceBaseBuilding(baseBuilding, new Vector3Int(3, 0, 3));
         }
 
         public void PlaceBaseBuilding(BaseBuilding building)
@@ -78,7 +78,15 @@ namespace Thiruvizha.Grids
         {
             BaseTile targetTile = mapTiles[targetPos.x, targetPos.z];
 
-            Destroy(targetTile.gameObject);
+            if (targetTile != null)
+            {
+                Destroy(targetTile.gameObject);
+            }
+            else
+            {
+
+                Debug.Log("This Ran");
+            }
 
             mapTiles[targetPos.x, targetPos.z] = building;
             building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
@@ -90,15 +98,22 @@ namespace Thiruvizha.Grids
             foreach (Vector2Int target in building.buildingTilesSO.ShapeTiles)
             {
                 targetTile = mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y];
-                mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y] = building;
-                Destroy(targetTile.gameObject);
+                if (targetTile != null)
+                {
+                    Destroy(targetTile.gameObject);
+                    mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y] = building;
+                }
             }
         }
 
         public bool CheckBuildingPositionisValid(BaseBuilding building)
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
+
+            if((targetCenterPos.x < 0 || targetCenterPos.x >= mapTiles.GetLength(0)) || (targetCenterPos.z < 0 || targetCenterPos.z >= mapTiles.GetLength(1))) return false;
+
             PlacePlane.transform.position = grid.CellToWorld(targetCenterPos);
+
             if (mapTiles[targetCenterPos.x, targetCenterPos.z] as BaseBuilding != null) return false;// The center position of the baseBuilding is already occupied by another basebuilding.
 
             if(building.buildingTilesSO == null) return true;

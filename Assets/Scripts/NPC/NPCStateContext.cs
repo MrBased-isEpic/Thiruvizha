@@ -21,17 +21,21 @@ public class NPCStateContext : MonoBehaviour
             {
                 OnEnergyLow?.Invoke();
             }
-            else if (energy > .7f)
+            else if (energy >= .7f)
             {
                 OnEnergyHigh?.Invoke();
+            }
+            else if(energy < .5f)
+            {
+                OnEnergyNeutral?.Invoke();
             }
         }
     }
 
     //Events
     private Action OnEnergyLow;
+    private Action OnEnergyNeutral;
     private Action OnEnergyHigh;
-
 
     private List<BaseBuilding.BuildingType> searchForTypes = new List<BaseBuilding.BuildingType>();
     private NavMeshAgent agent;
@@ -50,7 +54,7 @@ public class NPCStateContext : MonoBehaviour
         moving,
         interacting
     }
-    private NPCState state;
+    public NPCState state;
 
     private void Awake()
     {
@@ -60,15 +64,29 @@ public class NPCStateContext : MonoBehaviour
 
     private void Start()
     {
-        OnEnergyHigh += OnEnergyMinThresholdReached;
+        OnEnergyHigh += OnEnergyMaxThresholdReached;
         OnEnergyLow += OnEnergyMinThresholdReached;
+        OnEnergyNeutral += OnEnergyNeuThresholdReached;
+    }
+
+    private void OnEnergyNeuThresholdReached()
+    {
+        if(searchForTypes.Contains(BaseBuilding.BuildingType.shop))
+        {
+            searchForTypes.Remove(BaseBuilding.BuildingType.shop);
+            Debug.Log("Removed shop");
+        }
+        if(searchForTypes.Contains(BaseBuilding.BuildingType.ride))
+            searchForTypes.Remove(BaseBuilding.BuildingType.ride);
     }
 
     private void OnEnergyMinThresholdReached()
     {
-        searchForTypes.Add(BaseBuilding.BuildingType.shop);
-        Debug.Log("Added");
-        searchForTypes.Remove(BaseBuilding.BuildingType.ride);
+        if (!searchForTypes.Contains(BaseBuilding.BuildingType.shop))
+        {
+            searchForTypes.Add(BaseBuilding.BuildingType.shop);
+            Debug.Log("Shop Added");
+        }
         switch (state)
         {
             case NPCState.idle:
@@ -84,14 +102,20 @@ public class NPCStateContext : MonoBehaviour
     }
 
     private void OnEnergyMaxThresholdReached()
-    { 
-        searchForTypes.Add(BaseBuilding.BuildingType.ride);
+    {
+        Debug.Log("Ride Added");
+        if (!searchForTypes.Contains(BaseBuilding.BuildingType.ride))
+        {
+            searchForTypes.Add(BaseBuilding.BuildingType.ride);
+            Debug.Log("Ride Added");
+        }
         switch (state)
         {
             case NPCState.interacting:
-                SwitchState(NPCState.idle);
-                searchForTypes.Remove(BaseBuilding.BuildingType.shop);
-                Debug.Log("Removed");
+                SwitchState(NPCState.searching);
+                break;
+            case NPCState.idle:
+                SwitchState(NPCState.searching);
                 break;
         }
     }
@@ -101,19 +125,18 @@ public class NPCStateContext : MonoBehaviour
         switch (state)
         {
             case NPCState.idle:
-                _energy -= (float)(Time.deltaTime * .1);
+                _energy -= (float)(Time.deltaTime * .01);
                 break;
 
 
             case NPCState.searching:
-                //_energy -= (float)(Time.deltaTime * .1);
                 BaseBuilding[] buildings = GetBuildingsInRange();
+                transform.Rotate(new Vector3(0,1,0));
                 SearchForBuildings(searchForTypes);
                 break;
 
 
             case NPCState.moving:
-                //_energy -= (float)(Time.deltaTime * .1);
                 if (agent.remainingDistance <= agent.stoppingDistance)
                 {
                     SwitchState(NPCState.interacting);
@@ -123,10 +146,6 @@ public class NPCStateContext : MonoBehaviour
 
             case NPCState.interacting:
                 targetBuilding.Interact(this);
-                if (_energy > 0.7)
-                {
-                    SwitchState(NPCState.idle);
-                }
                 break;
         }
     }
@@ -136,15 +155,23 @@ public class NPCStateContext : MonoBehaviour
     {
         BaseBuilding[] buildings = GetBuildingsInRange();
 
-        foreach (BaseBuilding building in buildings)
+        int i = 0;
+        foreach (BaseBuilding.BuildingType type in searchForTypes)
         {
-            foreach (BaseBuilding.BuildingType type in searchForTypes)
+            Debug.Log(i+":"+type);
+            i++;
+        }
+        foreach (BaseBuilding building in buildings) // This is the list of buildings from GetBuildingsInRange().
+        {
+            if(building == null) continue;           
+            foreach (BaseBuilding.BuildingType type in searchForTypes) // For every type of building we are looking for.
             {
-                if (building.buildingTilesSO.buildingType == type)
+                if (building.buildingTilesSO.buildingType == type) // If the building is of that type,
                 {
-                    if (Vector3.Angle(transform.forward, building.transform.position - transform.position) <= viewAngle)
+                    if (Vector3.Angle(transform.forward, building.transform.position - transform.position) <= viewAngle) // If the building within the visible range,
                     {
-                        agent.SetDestination(targetBuilding.transform.position);
+                        Debug.Log(building +" : "+ type);
+                        agent.SetDestination(building.transform.position);
                         targetBuilding = building;
                         SwitchState(NPCState.moving);
                     }
@@ -159,10 +186,8 @@ public class NPCStateContext : MonoBehaviour
         switch (this.state)
         {
             case NPCState.searching:
-                Debug.Log("Npc is now Searching");
                 break;
             case NPCState.moving:
-                Debug.Log("Npc is now Moving");
                 break;
         }
     }
@@ -190,6 +215,11 @@ public class NPCStateContext : MonoBehaviour
     public void RegenerateEnergy()
     {
         _energy += Time.deltaTime * .2f;
+    }
+
+    public void SpendEnergy()
+    {
+        _energy -= Time.deltaTime * .4f;
     }
 
 }

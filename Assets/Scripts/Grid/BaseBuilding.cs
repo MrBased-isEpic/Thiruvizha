@@ -18,9 +18,14 @@ namespace Thiruvizha.Grids
 
         public void Interact(NPCStateContext npc)
         {
-            if (buildingTilesSO.buildingType == BuildingType.shop)
+            switch(buildingTilesSO.buildingType)
             {
-                npc.RegenerateEnergy();
+                case BuildingType.shop:
+                    npc.RegenerateEnergy();
+                    break;
+                case BuildingType.ride:
+                    npc.SpendEnergy();
+                    break;
             }
         }
     }
