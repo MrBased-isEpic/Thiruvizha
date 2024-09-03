@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Thiruvizha.Player.States;
 using Thiruvizha.Grids;
+using UnityEngine.Tilemaps;
 
 namespace Thiruvizha.Player
 {

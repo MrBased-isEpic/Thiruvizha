@@ -6,5 +6,6 @@ namespace Thiruvizha.Grids
 {
     public class BaseTile : MonoBehaviour
     {
+        public bool canBuildingBePlaced = true;
     }
 }

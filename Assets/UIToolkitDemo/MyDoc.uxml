@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/UIToolkitDemo/MyStyle.uss?fileID=7433441132597879392&amp;guid=f446f02df97f86647a648f552633ef28&amp;type=3#MyStyle" />
+    <ui:VisualElement style="flex-grow: 0; height: 286px;">
+        <ui:Label tabindex="-1" text="Tilemap Saver" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Title" />
+        <uie:ObjectField label="TileMap" type="UnityEngine.Tilemaps.Tilemap, UnityEngine.TilemapModule" name="TilemapField" />
+        <uie:ObjectField label="PlaceableSO" name="SaveSOField" allow-scene-objects="true" type="PlaceableSO, Assembly-CSharp" />
+        <ui:Button text="Save Level" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SaveButton" />
+        <ui:Button text="Load Level" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LoadButton" />
+    </ui:VisualElement>
+</ui:UXML>

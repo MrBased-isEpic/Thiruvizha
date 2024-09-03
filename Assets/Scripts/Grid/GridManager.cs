@@ -14,6 +14,8 @@ namespace Thiruvizha.Grids
         public Transform TwosizeBuilding;
         public Transform BaseBuilding;
 
+        [SerializeField] private PlaceableSO placeableSO;
+        [SerializeField] private NormalSO normalSO;
 
         private BaseTile[,] mapTiles;
 
@@ -23,24 +25,31 @@ namespace Thiruvizha.Grids
         {
             grid = GetComponent<Grid>();
             instance = this;
+        }
+
+        private void Start()
+        {
             InstantiateGrid();
         }
 
         private void InstantiateGrid()
         {
+
             mapTiles = new BaseTile[10,10];
-            for (int i = 0; i < 10; i++)// Ten times on the x
+            for (int x = 0; x < 10; x++)// Ten times on the x
             {
-                for (int j = 0; j < 10; j++)// Ten times on the y
+                for (int y = 0; y < 10; y++)// Ten times on the y
                 {  
-                    BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(i, 0, j)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
-                    mapTiles[i,j] = tile;
+                    BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(x, 0, y)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
+                    mapTiles[x,y] = tile;
+                    tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[x * 10 + y];
+                    Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
                 }
             }
-            BaseBuilding twoSizeBuilding = Instantiate(TwosizeBuilding).GetComponent<BaseBuilding>();
-            PlaceBaseBuilding(twoSizeBuilding, new Vector3Int(8, 0, 8));
+            //BaseBuilding twoSizeBuilding = Instantiate(TwosizeBuilding).GetComponent<BaseBuilding>();
+            //PlaceBaseBuilding(twoSizeBuilding, new Vector3Int(5, 0, 5));
             BaseBuilding baseBuilding = Instantiate(BaseBuilding).GetComponent<BaseBuilding>();
-            PlaceBaseBuilding(baseBuilding, new Vector3Int(3, 0, 3));
+            PlaceBaseBuilding(baseBuilding, new Vector3Int(5, 0, 5));
         }
 
         public void PlaceBaseBuilding(BaseBuilding building)
@@ -110,16 +119,23 @@ namespace Thiruvizha.Grids
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
 
-            if((targetCenterPos.x < 0 || targetCenterPos.x >= mapTiles.GetLength(0)) || (targetCenterPos.z < 0 || targetCenterPos.z >= mapTiles.GetLength(1))) return false;
+            if((targetCenterPos.x < 0 || targetCenterPos.x >= 10/*mapTiles.GetLength(0))*/ || (targetCenterPos.z < 0 || targetCenterPos.z >= 10/*mapTiles.GetLength(1)*/))) return false;
 
             PlacePlane.transform.position = grid.CellToWorld(targetCenterPos);
 
             if (mapTiles[targetCenterPos.x, targetCenterPos.z] as BaseBuilding != null) return false;// The center position of the baseBuilding is already occupied by another basebuilding.
 
+            if (!mapTiles[targetCenterPos.x, targetCenterPos.z].canBuildingBePlaced)
+            {
+                Debug.Log("Tile is False");
+                return false;
+            }
+
             if(building.buildingTilesSO == null) return true;
 
             foreach (Vector2Int target in building.buildingTilesSO.ShapeTiles)
             {
+                if (!mapTiles[targetCenterPos.x, targetCenterPos.z].canBuildingBePlaced) return false;
                 if (mapTiles[targetCenterPos.x + target.x, targetCenterPos.y + target.y] as BaseBuilding != null)// One of the tiles that form the shape is occupied by another basebuilding.
                     return false;
             }

@@ -1,0 +1,40 @@
+.TilemapField {
+}
+
+#Title {
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    font-size: 25px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    height: 40px;
+    margin-bottom: 10px;
+}
+
+#SaveButton {
+    height: 40px;
+    margin-top: 15px;
+    font-size: 15px;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+#LoadTitle {
+    font-size: 25px;
+    -unity-text-align: upper-center;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+}
+
+#Save {
+    height: 100px;
+    min-height: 100px;
+    max-height: none;
+    flex-grow: 1;
+}
+
+#LoadButton {
+    height: 40px;
+    font-size: 15px;
+}

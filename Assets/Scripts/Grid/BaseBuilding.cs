@@ -6,15 +6,19 @@ namespace Thiruvizha.Grids
 {
     public class BaseBuilding : BaseTile, IBaseBuilding
     {
+        private void OnEnable()
+        {
+            canBuildingBePlaced = false;
+        }
+
+        public Vector2Int gridPosition;
+        public BuildingTilesSO buildingTilesSO;
         public enum BuildingType
         {
             shop,
             ride
         }
         private bool isinValidPosition;
-
-        public Vector2Int gridPosition = Vector2Int.zero;
-        public BuildingTilesSO buildingTilesSO;
 
         public void Interact(NPCStateContext npc)
         {
