@@ -20,7 +20,7 @@ namespace Thiruvizha.Grids
         }
         private bool isinValidPosition;
 
-        public void Interact(NPCStateContext npc)
+        public void Interact(Thiruvizha.NPC.NPCStateContext npc)
         {
             switch(buildingTilesSO.buildingType)
             {

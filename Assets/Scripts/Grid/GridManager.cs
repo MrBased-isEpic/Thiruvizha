@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace Thiruvizha.Grids
 {
     public class GridManager : MonoBehaviour
@@ -13,9 +12,12 @@ namespace Thiruvizha.Grids
         public Transform BaseTile;
         public Transform TwosizeBuilding;
         public Transform BaseBuilding;
+        public Transform NPC;
+        public Transform Destination;
+
+        public NPC.NPCSpawner spawner;
 
         [SerializeField] private PlaceableSO placeableSO;
-        [SerializeField] private NormalSO normalSO;
 
         private BaseTile[,] mapTiles;
 
@@ -30,6 +32,8 @@ namespace Thiruvizha.Grids
         private void Start()
         {
             InstantiateGrid();
+            spawner.Initialize(this);
+            spawner.EnableSpawn();
         }
 
         private void InstantiateGrid()
@@ -43,7 +47,7 @@ namespace Thiruvizha.Grids
                     BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(x, 0, y)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
                     mapTiles[x,y] = tile;
                     tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[x * 10 + y];
-                    Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
+                    //Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
                 }
             }
             //BaseBuilding twoSizeBuilding = Instantiate(TwosizeBuilding).GetComponent<BaseBuilding>();
@@ -91,14 +95,13 @@ namespace Thiruvizha.Grids
             {
                 Destroy(targetTile.gameObject);
             }
-            else
-            {
 
-                Debug.Log("This Ran");
+            if (building.gridPosition != new Vector2Int(targetPos.x, targetPos.z))
+            {
+                mapTiles[targetPos.x, targetPos.z] = building;
+                building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
             }
 
-            mapTiles[targetPos.x, targetPos.z] = building;
-            building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
             building.transform.position = grid.CellToWorld(targetPos);
 
 
@@ -140,6 +143,11 @@ namespace Thiruvizha.Grids
                     return false;
             }
             return true;
+        }
+
+        public Vector3Int GetWorldToCellPosition(Vector3 position)
+        {
+            return grid.WorldToCell(position);
         }
     }
 }

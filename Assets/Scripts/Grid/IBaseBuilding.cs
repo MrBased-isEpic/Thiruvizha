@@ -6,6 +6,6 @@ namespace Thiruvizha.Grids
 {
     public interface IBaseBuilding
     {
-        void Interact(NPCStateContext npc);
+        void Interact(Thiruvizha.NPC.NPCStateContext npc);
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UIElements;
 
-public class MyEditor : EditorWindow
+public class TilemapSaverEditor : EditorWindow
 {
     private ObjectField TileMapField;
     private ObjectField SavePlaceableSOField;
@@ -15,15 +15,14 @@ public class MyEditor : EditorWindow
     private Button SaveLevel;
     private Button LoadLevel;
 
-    [MenuItem("Tools/MyEditor")]
+    [MenuItem("Tools/TilemapSaver")]
     public static void OpenEditorWindow()
     {
-        MyEditor window = GetWindow<MyEditor>();
+        TilemapSaverEditor window = GetWindow<TilemapSaverEditor>();
         window.titleContent = new GUIContent("MyEditor");
         window.maxSize = new Vector2(315, 205);
         window.minSize = window.maxSize;
     }
-
     public void CreateGUI()
     {
         VisualElement root = rootVisualElement;
@@ -39,24 +38,21 @@ public class MyEditor : EditorWindow
         LoadLevel = root.Q<Button>("LoadButton");
 
         //Assign Callbacks
-
         SaveLevel.clicked += StartSave;
         LoadLevel.clicked += StartLoad;
     }
 
-
     private void StartSave()
     {
         CheckIfNull();
-        PlaceableSO placeableSO = SavePlaceableSOField.value as PlaceableSO;
-        placeableSO.SetData(TileMapField.value as Tilemap);
+        (SavePlaceableSOField.value as PlaceableSO).SetData(TileMapField.value as Tilemap); // Call an function from the SO
         Debug.Log("Saved Successfully");
     }
     private void StartLoad()
     {
         CheckIfNull();
-        PlaceableSO placeableSO = SavePlaceableSOField.value as PlaceableSO;
-        placeableSO.ViewData(TileMapField.value as Tilemap, AssetDatabase.LoadAssetAtPath<GroundRuleTile>("Assets/Palletes/Green.asset"), AssetDatabase.LoadAssetAtPath<GroundRuleTile>("Assets/Palletes/Orange.asset"));
+        // Call an function from the SO
+        (SavePlaceableSOField.value as PlaceableSO).LoadData(TileMapField.value as Tilemap, AssetDatabase.LoadAssetAtPath<GroundRuleTile>("Assets/Palletes/Green.asset"), AssetDatabase.LoadAssetAtPath<GroundRuleTile>("Assets/Palletes/Orange.asset"));
         Debug.Log("Loaded Successfully");
     }
 

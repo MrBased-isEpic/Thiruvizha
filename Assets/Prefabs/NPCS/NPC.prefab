@@ -74,6 +74,7 @@ MonoBehaviour:
     m_Bits: 8
   viewAngle: 40
   viewRadius: 20
+  idleSpeed: 0
   state: 0
 --- !u!1 &5035302529221381622
 GameObject:

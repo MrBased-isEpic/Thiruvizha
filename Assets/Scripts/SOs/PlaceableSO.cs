@@ -11,7 +11,7 @@ public class PlaceableSO : ScriptableObject
 {
     public bool[] canBuildingBePlacedFlat = new bool[100];
 
-    public void SetData(Tilemap tilemap)
+    public void SetData(Tilemap tilemap) // Called by the editor tool to save the tilemap
     {
         canBuildingBePlacedFlat = new bool[100];
         for (int x = 0; x < 10; x++)
@@ -26,8 +26,7 @@ public class PlaceableSO : ScriptableObject
             }
         }
     }
-
-    public void ViewData(Tilemap tilemap, GroundRuleTile GreenTile, GroundRuleTile RedTile)
+    public void LoadData(Tilemap tilemap, GroundRuleTile GreenTile, GroundRuleTile RedTile) // Called by the editor tool to load the array to the tilemap
     {
         for (int x = 0; x < 10; x++)
         {
@@ -38,3 +37,4 @@ public class PlaceableSO : ScriptableObject
         }
     }
 }
+
