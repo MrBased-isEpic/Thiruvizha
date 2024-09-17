@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.EnhancedTouch;
 using Thiruvizha.Grids;
 using EnTouch = UnityEngine.InputSystem.EnhancedTouch;
 
@@ -47,7 +44,6 @@ namespace Thiruvizha.Player.States
                 else
                 {
                     EnTouch.Touch touch = EnTouch.Touch.activeTouches[0];
-                    //UnityEngine.Touch touch = Input.GetTouch(0);
 
                     switch (touch.phase)
                     {

@@ -1,11 +1,7 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Thiruvizha.Player.States;
 using Thiruvizha.Grids;
-using UnityEngine.Tilemaps;
 
 namespace Thiruvizha.Player
 {
@@ -19,6 +15,7 @@ namespace Thiruvizha.Player
         //States
         private PlayerLookState lookState;
         private PlayerMoveState moveState;
+        private PlayerUIState uiState;
 
         //Runtime Changable Values
         private PlayerBaseState currentState;
@@ -32,7 +29,8 @@ namespace Thiruvizha.Player
         {
             notThere,
             look,
-            move
+            move,
+            ui
         }
 
 
@@ -40,6 +38,7 @@ namespace Thiruvizha.Player
         {
             lookState = new PlayerLookState();
             moveState = new PlayerMoveState();
+            uiState = new PlayerUIState();
             currentState = lookState;
             EnhancedTouchSupport.Enable();
         }
@@ -65,6 +64,9 @@ namespace Thiruvizha.Player
                     break;
                 case PlayerState.move:
                     currentState = moveState;
+                    break;
+                case PlayerState.ui:
+                    currentState = uiState;
                     break;
             }
             currentState.EnterState(this);

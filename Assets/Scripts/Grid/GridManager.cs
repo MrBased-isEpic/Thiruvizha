@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Thiruvizha.Grids
@@ -14,6 +11,8 @@ namespace Thiruvizha.Grids
         public Transform BaseBuilding;
         public Transform NPC;
         public Transform Destination;
+
+        
 
         public NPC.NPCSpawner spawner;
 
@@ -130,7 +129,6 @@ namespace Thiruvizha.Grids
 
             if (!mapTiles[targetCenterPos.x, targetCenterPos.z].canBuildingBePlaced)
             {
-                Debug.Log("Tile is False");
                 return false;
             }
 

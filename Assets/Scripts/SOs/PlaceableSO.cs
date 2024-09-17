@@ -7,6 +7,7 @@ using UnityEngine.Rendering;
 using UnityEngine.Tilemaps;
 
 [CreateAssetMenu]
+[System.Serializable]
 public class PlaceableSO : ScriptableObject
 {
     public bool[] canBuildingBePlacedFlat = new bool[100];
@@ -25,6 +26,8 @@ public class PlaceableSO : ScriptableObject
                 }
             }
         }
+
+        EditorUtility.SetDirty(this);
     }
     public void LoadData(Tilemap tilemap, GroundRuleTile GreenTile, GroundRuleTile RedTile) // Called by the editor tool to load the array to the tilemap
     {
