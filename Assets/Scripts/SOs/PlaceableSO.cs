@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Thiruvizha.Grids;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -11,10 +12,13 @@ using UnityEngine.Tilemaps;
 public class PlaceableSO : ScriptableObject
 {
     public bool[] canBuildingBePlacedFlat = new bool[100];
+    public List<Transform> buildingTransforms = new List<Transform>();
 
     public void SetData(Tilemap tilemap) // Called by the editor tool to save the tilemap
     {
         canBuildingBePlacedFlat = new bool[100];
+        buildingTransforms = new List<Transform>();
+
         for (int x = 0; x < 10; x++)
         {
             for (int y = 0; y < 10; y++)
@@ -25,6 +29,14 @@ public class PlaceableSO : ScriptableObject
                     canBuildingBePlacedFlat[x * 10 + y] = tile.canBuildingBePlaced;
                 }
             }
+        }
+
+
+        foreach (Transform building in tilemap.transform)
+        {
+            buildingTransforms.Add(building.transform);
+            //buildingTilesSOs.Add(building.GetComponent<BaseBuilding>().buildingTilesSO);
+            //positions.Add(new Vector3Int((int)building.transform.position.x, 0, (int)building.transform.position.z));
         }
 
         EditorUtility.SetDirty(this);

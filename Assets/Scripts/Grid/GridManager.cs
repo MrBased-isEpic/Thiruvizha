@@ -49,10 +49,12 @@ namespace Thiruvizha.Grids
                     //Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
                 }
             }
-            //BaseBuilding twoSizeBuilding = Instantiate(TwosizeBuilding).GetComponent<BaseBuilding>();
-            //PlaceBaseBuilding(twoSizeBuilding, new Vector3Int(5, 0, 5));
-            BaseBuilding baseBuilding = Instantiate(BaseBuilding).GetComponent<BaseBuilding>();
-            PlaceBaseBuilding(baseBuilding, new Vector3Int(5, 0, 5));
+
+            foreach (Transform buildingTransform in placeableSO.buildingTransforms)
+            {
+                BaseBuilding baseBuilding = Instantiate(buildingTransform).GetComponent<BaseBuilding>();
+                PlaceBaseBuilding(baseBuilding, grid.WorldToCell(buildingTransform.position));
+            }
         }
 
         public void PlaceBaseBuilding(BaseBuilding building)
