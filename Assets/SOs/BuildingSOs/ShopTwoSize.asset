@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d1929260d56e57a489dfe2491b304cd3, type: 3}
-  m_Name: TwoSize
+  m_Name: ShopTwoSize
   m_EditorClassIdentifier: 
-  ShapeTiles:
-  - {x: 1, y: 0}
+  prefab: {fileID: 7020096474098442557, guid: 761c5b2c1cdfbfa47a79dcf5537a3300, type: 3}
+  buildingType: 0

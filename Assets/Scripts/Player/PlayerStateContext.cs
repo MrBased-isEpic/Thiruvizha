@@ -12,6 +12,10 @@ namespace Thiruvizha.Player
         public float ZoomMin { get; private set; } = 2;
         public float ZoomMax { get; private set; } = 8;
 
+        public float pickDetectionTime;
+        public float pickTime;
+
+
         //States
         private PlayerLookState lookState;
         private PlayerMoveState moveState;
@@ -23,6 +27,7 @@ namespace Thiruvizha.Player
 
         //For states
         public LayerMask ignoreBuildings;
+        public LayerMask UI;
 
 
         public enum PlayerState

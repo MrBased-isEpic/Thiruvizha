@@ -32,6 +32,8 @@ namespace Thiruvizha.NPC
             }
         }
 
+        [SerializeField] private MeshRenderer meshRenderer;
+
         //Events
         private Action OnEnergyLow;
         private Action OnEnergyNeutral;
@@ -62,6 +64,7 @@ namespace Thiruvizha.NPC
             interacting
         }
         public NPCState state;
+        public NPCSpawner.Type destination;
 
         private void Awake()
         {
@@ -83,29 +86,23 @@ namespace Thiruvizha.NPC
 
         private void OnEnergyNeuThresholdReached()
         {
-            if (searchForTypes.Contains(BaseBuilding.BuildingType.shop))
-            {
-                searchForTypes.Remove(BaseBuilding.BuildingType.shop);
-            }
-            if (searchForTypes.Contains(BaseBuilding.BuildingType.ride))
-                searchForTypes.Remove(BaseBuilding.BuildingType.ride);
+            //if (searchForTypes.Contains(BaseBuilding.BuildingType.shop))
+            //{
+            //    searchForTypes.Remove(BaseBuilding.BuildingType.shop);
+            //}
+            //if (searchForTypes.Contains(BaseBuilding.BuildingType.ride))
+            //    searchForTypes.Remove(BaseBuilding.BuildingType.ride);
         }
 
         private void OnEnergyMinThresholdReached()
         {
-            if (!searchForTypes.Contains(BaseBuilding.BuildingType.shop))
-            {
-                searchForTypes.Add(BaseBuilding.BuildingType.shop);
-            }
+            //if (!searchForTypes.Contains(BaseBuilding.BuildingType.shop))
+            //{
+            //    searchForTypes.Add(BaseBuilding.BuildingType.shop);
+            //}
             switch (state)
             {
                 case NPCState.idle:
-                    SwitchState(NPCState.searching);
-                    break;
-                case NPCState.interacting:
-                    SwitchState(NPCState.idle);
-                    break;
-                case NPCState.moving:
                     SwitchState(NPCState.searching);
                     break;
             }
@@ -133,7 +130,7 @@ namespace Thiruvizha.NPC
             switch (state)
             {
                 case NPCState.idle:
-                    _energy -= (float)(Time.deltaTime * .01);
+                    _energy -= (float)(Time.deltaTime * .03);
 
                     if (agent.remainingDistance <= agent.stoppingDistance)
                     {
@@ -149,7 +146,6 @@ namespace Thiruvizha.NPC
                         SearchForBuildings(searchForTypes);
                         turnAngle = 0;
                         startingYAngle = transform.rotation.eulerAngles.y;
-                        Debug.Log("Searched");
                     }
 
                     transform.Rotate(new Vector3(0, 1, 0));
@@ -171,7 +167,22 @@ namespace Thiruvizha.NPC
             }
         }
 
+        public void ChangeColor()
+        {
+            switch(destination)
+            {
+                case NPCSpawner.Type.Temple:
+                    meshRenderer.material = NPCManager.instance.RedMat;
+                    break;
+                case NPCSpawner.Type.Pond:
+                    meshRenderer.material = NPCManager.instance.PurpleMat;
+                    break;
+                case NPCSpawner.Type.Entrance:
+                    meshRenderer.material = NPCManager.instance.OrangeMat;
+                    break;
 
+            }
+        }
         private void SearchForBuildings(List<BaseBuilding.BuildingType> buildingTypes)
         {
             BaseBuilding[] buildings = GetBuildingsInRange();
@@ -201,7 +212,7 @@ namespace Thiruvizha.NPC
             {
                 case NPCState.idle:
                     agent.speed = .6f;
-                    agent.SetDestination(GridManager.instance.Destination.position);
+                    agent.SetDestination(NPCManager.instance.GetDestination(destination).position);
                     break;
                 case NPCState.searching:
                     turnAngle = 0;
@@ -243,9 +254,28 @@ namespace Thiruvizha.NPC
             _energy -= Time.deltaTime * .4f;
         }
 
+        public void SetDestination(NPCSpawner.Type destination)
+        {
+            this.destination = destination;
+
+            searchForTypes.Clear();
+            switch(destination)
+            {
+                case NPCSpawner.Type.Entrance:
+                    searchForTypes.Add(BaseBuilding.BuildingType.ride);
+                    break;
+                case NPCSpawner.Type.Temple:
+                    searchForTypes.Add(BaseBuilding.BuildingType.shop);
+                    break;
+                case NPCSpawner.Type.Pond:
+                    searchForTypes.Add(BaseBuilding.BuildingType.activity);
+                    break;
+            }
+            ChangeColor();
+        }
         public void InitializeEnergy()
         {
-            //_energy = UnityEngine.Random.Range(-.5f, -.65f);
+            _energy = UnityEngine.Random.Range(-.65f, -.67f);
         }
 
     }

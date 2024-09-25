@@ -9,9 +9,6 @@ namespace Thiruvizha.Grids
         public Transform BaseTile;
         public Transform TwosizeBuilding;
         public Transform BaseBuilding;
-        public Transform NPC;
-        public Transform Destination;
-
         
 
         public NPC.NPCSpawner spawner;
@@ -31,8 +28,6 @@ namespace Thiruvizha.Grids
         private void Start()
         {
             InstantiateGrid();
-            spawner.Initialize(this);
-            spawner.EnableSpawn();
         }
 
         private void InstantiateGrid()
@@ -43,78 +38,64 @@ namespace Thiruvizha.Grids
             {
                 for (int y = 0; y < 10; y++)// Ten times on the y
                 {  
-                    BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(x, 0, y)), Quaternion.identity).gameObject.GetComponent<BaseTile>();          
+                    BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(x, 0, y)), Quaternion.identity,this.transform).gameObject.GetComponent<BaseTile>();          
                     mapTiles[x,y] = tile;
                     tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[x * 10 + y];
                     //Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
                 }
             }
 
-            foreach (Transform buildingTransform in placeableSO.buildingTransforms)
+            for(int i = 0; i < placeableSO.positions.Count; i++)
             {
-                BaseBuilding baseBuilding = Instantiate(buildingTransform).GetComponent<BaseBuilding>();
-                PlaceBaseBuilding(baseBuilding, grid.WorldToCell(buildingTransform.position));
+                BaseBuilding baseBuilding = Instantiate(placeableSO.buildingTransforms[i]).GetComponent<BaseBuilding>();
+                PlaceBaseBuilding(baseBuilding, grid.WorldToCell(placeableSO.positions[i]));
             }
         }
 
         public void PlaceBaseBuilding(BaseBuilding building)
         {
+            Vector3Int centerPos = grid.WorldToCell(building.transform.position);
+            building.transform.position = grid.CellToWorld(centerPos);
 
-            Vector3Int targetPos =  grid.WorldToCell(building.transform.position);
-            BaseTile targetTile = mapTiles[targetPos.x, targetPos.z];
+            PlaceBaseTile(building);
 
-            if (building.gridPosition != Vector2Int.zero)// Check if it was assigned
-            {
-                mapTiles[building.gridPosition.x, building.gridPosition.y] = targetTile;
-                targetTile.transform.position = grid.CellToWorld(new Vector3Int(building.gridPosition.x, 0, building.gridPosition.y));
-            }
-            else// If it wasn't assigned yet..
-            {
-                Destroy(targetTile.gameObject);
-            }
+            RemoveBaseTiles(building);
 
-            mapTiles[targetPos.x, targetPos.z] = building;
-            building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
-            building.transform.position = grid.CellToWorld(targetPos);
+            building.gridPosition = new Vector2Int((int)building.transform.position.x, (int)building.transform.position.z);
 
-            if (building.buildingTilesSO == null) return;// This would mean that the building is single tiled one, so there is no shape.
-
-            foreach (Vector2Int target in building.buildingTilesSO.ShapeTiles)
-            {
-                targetTile = mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y];
-                mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y] = building;
-                Destroy(targetTile.gameObject);
-            }
-
+            building.gridOrientation = building.transform.rotation.eulerAngles.y;
         }
-
         public void PlaceBaseBuilding(BaseBuilding building, Vector3Int targetPos)
         {
             BaseTile targetTile = mapTiles[targetPos.x, targetPos.z];
+            bool previouslyPlaced = false;
 
-            if (targetTile != null)
-            {
-                Destroy(targetTile.gameObject);
-            }
-
-            if (building.gridPosition != new Vector2Int(targetPos.x, targetPos.z))
+            if (building.gridPosition != new Vector2Int(targetPos.x, targetPos.z))// Check if building was not already there.
             {
                 mapTiles[targetPos.x, targetPos.z] = building;
                 building.gridPosition = new Vector2Int(targetPos.x, targetPos.z);
+
+                if (targetTile != null)
+                {
+                    Destroy(targetTile.gameObject);
+                }
             }
+            else previouslyPlaced = true;
 
             building.transform.position = grid.CellToWorld(targetPos);
 
 
-            if (building.buildingTilesSO == null) return;// This would mean that the building is single tiled one, so there is no shape.
+            //if (building.buildingTilesSO == null) return;// This would mean that the building is single tiled one, so there is no shape.
 
-            foreach (Vector2Int target in building.buildingTilesSO.ShapeTiles)
+            if(previouslyPlaced) return;
+
+            foreach (Transform target in building.ShapeTransforms)
             {
-                targetTile = mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y];
+                targetTile = mapTiles[(int)target.position.x, (int)target.position.z];
                 if (targetTile != null)
                 {
                     Destroy(targetTile.gameObject);
-                    mapTiles[building.gridPosition.x + target.x, building.gridPosition.y + target.y] = building;
+                    mapTiles[(int)target.position.x, (int)target.position.y] = building;
                 }
             }
         }
@@ -123,26 +104,148 @@ namespace Thiruvizha.Grids
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
 
-            if((targetCenterPos.x < 0 || targetCenterPos.x >= 10/*mapTiles.GetLength(0))*/ || (targetCenterPos.z < 0 || targetCenterPos.z >= 10/*mapTiles.GetLength(1)*/))) return false;
+            if((targetCenterPos.x < 0 || targetCenterPos.x >= 10 || (targetCenterPos.z < 0 || targetCenterPos.z >= 10))) return false;
 
             PlacePlane.transform.position = grid.CellToWorld(targetCenterPos);
 
-            if (mapTiles[targetCenterPos.x, targetCenterPos.z] as BaseBuilding != null) return false;// The center position of the baseBuilding is already occupied by another basebuilding.
 
-            if (!mapTiles[targetCenterPos.x, targetCenterPos.z].canBuildingBePlaced)
+            BaseTile centerTile = mapTiles[targetCenterPos.x, targetCenterPos.z];
+            if (centerTile != null)
             {
-                return false;
+
+                BaseBuilding BuildingAtPos = centerTile as BaseBuilding;
+                if (BuildingAtPos != null) // The center position of the baseBuilding is already occupied by another basebuilding.
+                {
+                    if (BuildingAtPos != building) // Checking if it is the same building lol.
+                    {
+                        Debug.Log("Building at CenterPosition"); return false;
+                    }   
+                }
+                else
+                {
+                    if (!centerTile.canBuildingBePlaced)
+                    {
+                        Debug.Log("BaseTile Rejected"); return false;
+                    }
+                }
             }
 
-            if(building.buildingTilesSO == null) return true;
 
-            foreach (Vector2Int target in building.buildingTilesSO.ShapeTiles)
+            foreach (Transform target in building.ShapeTransforms)
             {
-                if (!mapTiles[targetCenterPos.x, targetCenterPos.z].canBuildingBePlaced) return false;
-                if (mapTiles[targetCenterPos.x + target.x, targetCenterPos.y + target.y] as BaseBuilding != null)// One of the tiles that form the shape is occupied by another basebuilding.
-                    return false;
+                if ((target.position.x < 0 || target.position.x >= 10 || (target.position.z < 0 || target.position.z >= 10))) return false;
+
+
+                Vector3Int CenterPos = grid.WorldToCell(target.position); 
+                centerTile = mapTiles[CenterPos.x, CenterPos.z];
+                if (centerTile != null)
+                {
+                    BaseBuilding BuildingAtPos = centerTile as BaseBuilding;
+                    if (BuildingAtPos != null) // The center position of the baseBuilding is already occupied by another basebuilding.
+                    {
+                        if (BuildingAtPos != building) // Checking if it is the same building lol.
+                        {
+                            Debug.Log("Building at TargetPosition"); return false;
+                        }
+                    }
+                    else
+                    {
+                        if (!centerTile.canBuildingBePlaced)
+                        {
+                            Debug.Log("BaseTile Rejected at: "+ centerTile.transform.position); return false;
+                        }
+                    }
+                }
             }
+            Debug.Log("Checked ok");
             return true;
+        }
+
+        private void PlaceBaseTile(BaseBuilding building)
+        {
+            Vector3 OGPos = building.transform.position;
+            Vector3 OGRot = building.transform.rotation.eulerAngles;
+            Vector3Int centerPos = new Vector3Int(building.gridPosition.x,0,building.gridPosition.y);
+            Vector3Int currentPos = grid.WorldToCell(building.transform.position);
+
+            BaseBuilding placedBuilding = mapTiles[centerPos.x,centerPos.z] as BaseBuilding;
+            BaseTile tile;
+            if (centerPos != currentPos)
+            {
+                tile = Instantiate(BaseTile, centerPos, Quaternion.identity,this.transform).GetComponent<BaseTile>();
+                mapTiles[centerPos.x, centerPos.z] = tile;
+                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[centerPos.x * 10 + centerPos.z];
+            }
+
+            building.transform.position = centerPos;
+            building.transform.rotation = Quaternion.Euler(building.transform.rotation.eulerAngles.x, building.gridOrientation, building.transform.rotation.eulerAngles.z);
+
+            foreach (Transform target in building.ShapeTransforms)
+            {
+                Vector3Int spawnPos = grid.WorldToCell(target.position);
+
+                placedBuilding = mapTiles[spawnPos.x, spawnPos.z] as BaseBuilding;
+
+                tile = Instantiate(BaseTile, spawnPos, Quaternion.identity, this.transform).GetComponent<BaseTile>();
+                mapTiles[spawnPos.x, spawnPos.z] = tile;
+                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[spawnPos.x * 10 + spawnPos.z]; 
+
+            }
+
+            building.transform.position = OGPos;
+            building.transform.rotation = Quaternion.Euler(OGRot);
+        }
+        private void RemoveBaseTiles(BaseBuilding building)
+        {
+            Vector3Int centerPos = grid.WorldToCell(building.transform.position);
+
+            Vector3Int buildingGridPos = new Vector3Int(building.gridPosition.x, 0, building.gridPosition.y);
+
+            BaseTile desTile;
+            BaseBuilding placedBuilding;
+
+            desTile = mapTiles[centerPos.x, centerPos.z];
+            placedBuilding = desTile as BaseBuilding;
+            if (desTile != null)
+            {
+                if (placedBuilding != building)
+                {
+                    mapTiles[centerPos.x, centerPos.z] = building;
+                    Destroy(desTile.gameObject);
+                }
+            }
+            
+
+            foreach (Transform target in building.ShapeTransforms)
+            {
+                Vector3Int desPos = grid.WorldToCell(target.position);
+                desTile = mapTiles[desPos.x, desPos.z];
+                if (desTile == null) continue;
+                placedBuilding = desTile as BaseBuilding;
+                if (placedBuilding != building)
+                {
+                    desTile = mapTiles[desPos.x, desPos.z];
+                    mapTiles[desPos.x, desPos.z] = building;
+                    Destroy(desTile.gameObject);
+                    Debug.Log("Destroyed");
+                }
+            }
+
+            building.transform.position = grid.CellToWorld(centerPos);
+        }
+
+        private void ClearMapTiles(BaseBuilding building)
+        {
+            Vector3 OGPos = building.transform.position;
+            Vector3 OGRot = building.transform.rotation.eulerAngles;
+
+
+            building.transform.position = grid.CellToWorld(new Vector3Int(building.gridPosition.x, 0, building.gridPosition.y));
+            building.transform.rotation = Quaternion.Euler(building.transform.rotation.eulerAngles.x, building.gridOrientation, building.transform.rotation.eulerAngles.z);
+
+            building.transform.position = OGPos;
+            building.transform.rotation = Quaternion.Euler(OGRot);
+
         }
 
         public Vector3Int GetWorldToCellPosition(Vector3 position)

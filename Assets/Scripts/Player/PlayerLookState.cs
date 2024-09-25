@@ -10,6 +10,9 @@ namespace Thiruvizha.Player.States
         Vector3 direction;
 
         private float holdDuration;
+        private float pickTimer;
+
+        private bool isPickingUp = false;
 
         private void Zoom(float increment, PlayerStateContext player)
         {
@@ -49,33 +52,65 @@ namespace Thiruvizha.Player.States
                     {
                         case UnityEngine.InputSystem.TouchPhase.Began:
                             holdDuration = 0;
+                            pickTimer = 0;
+                            isPickingUp = false;
                             touchPos = player.cam.ScreenToWorldPoint(touch.screenPosition);
                             break;
                         case UnityEngine.InputSystem.TouchPhase.Moved:
                             direction = touchPos - player.cam.ScreenToWorldPoint(touch.screenPosition);
                             player.transform.position += direction;
                             break;
+
                         case UnityEngine.InputSystem.TouchPhase.Stationary:
-                            holdDuration += Time.deltaTime;
-                            
-                            if (holdDuration > .7)
+                            Debug.Log("touch is stationary updating");
+                            if (!isPickingUp)
                             {
-                                Ray ray = player.cam.ScreenPointToRay(touch.screenPosition);
-                                RaycastHit hit;
-                                if (Physics.Raycast(ray,out hit, 100))
+                                if (holdDuration > player.pickDetectionTime)
                                 {
-                                    BaseTile tile = hit.collider.gameObject.GetComponent<BaseTile>();
-                                    if(tile as BaseBuilding != null)
+                                    Ray ray = player.cam.ScreenPointToRay(touch.screenPosition);
+                                    RaycastHit hit;
+                                    if (Physics.Raycast(ray, out hit, 100))
                                     {
-                                        player.selectedBuilding = tile as BaseBuilding;
-                                        player.SwitchState(PlayerStateContext.PlayerState.move);
+                                        BaseTile tile = hit.collider.gameObject.GetComponentInParent<BaseTile>();
+                                        if (tile as BaseBuilding != null)
+                                        {
+                                            player.selectedBuilding = tile as BaseBuilding;
+                                            player.selectedBuilding.TurnOnArrow();
+                                            isPickingUp = true;
+                                        }
                                     }
-                                    
+                                    holdDuration = 0;
+                                }
+                                else
+                                {
+                                    Debug.Log("hold timer updating");
+                                    holdDuration += Time.deltaTime;
                                 }
                             }
-                            else {  }
+                            else
+                            {
+                                if (pickTimer > player.pickTime)
+                                {
+                                    isPickingUp = false;
+                                    player.SwitchState(PlayerStateContext.PlayerState.move);    
+                                }
+                                else
+                                {
+                                    pickTimer += Time.deltaTime;
+                                    Debug.Log("pick timer updating");
+                                    player.selectedBuilding.SetArrowFill(pickTimer,player.pickTime);
+                                }
+
+                            }
+
                             break;
-                        
+                            case UnityEngine.InputSystem.TouchPhase.Ended:
+                                if (player.selectedBuilding != null)
+                                {
+                                    player.selectedBuilding.TurnOffArrow();
+                                }
+                                break;
+
                     }
                 }
 
@@ -92,7 +127,9 @@ namespace Thiruvizha.Player.States
         }
         public override void EndState(PlayerStateContext player)
         {
-
+            holdDuration = 0;
+            pickTimer = 0;
+            isPickingUp = false;
         }
     }
 }
