@@ -2,12 +2,13 @@ using Thiruvizha.Player;
 using Thiruvizha.Grids;
 using Thiruvizha.UI;
 using UnityEngine;
+using System;
 
-public class Gamemanager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-    public static Gamemanager instance;
+    public static GameManager instance;
 
-    [SerializeField] private PlayerStateContext playerStateContext;
+    public PlayerStateContext player;
 
     private void Awake()
     {
@@ -18,18 +19,33 @@ public class Gamemanager : MonoBehaviour
     {
         UIManager.instance.OnItemPicked += GivePlayerABuilding;
         UIManager.instance.OnShopOpen += OpenShop;
+        UIManager.instance.OnRotateBuildingTimer += RotatePlayerBuilding;
+
+        player.OnMoveStateEntered += TurnOnPlacableVisuals;
+        player.OnMoveStateExited += TurnOffPlacableVisuals;
+    }
+
+    private void TurnOnPlacableVisuals()
+    {
+        UIManager.instance.TurnOnRotator();
+    }
+    private void TurnOffPlacableVisuals()
+    {
+        UIManager.instance.TurnOffRotator();
     }
 
     private void OpenShop()
     {
-        playerStateContext.SwitchState(PlayerStateContext.PlayerState.ui);
+        player.SwitchState(PlayerStateContext.PlayerState.ui);
     }
-
     private void GivePlayerABuilding()
     {
         BaseBuilding building = Instantiate(GridManager.instance.BaseBuilding).GetComponent<BaseBuilding>();
-        playerStateContext.selectedBuilding = building;
-        playerStateContext.SwitchState(PlayerStateContext.PlayerState.move);
+        player.selectedBuilding = building;
+        player.SwitchState(PlayerStateContext.PlayerState.move);
     }
-
+    private void RotatePlayerBuilding()
+    {
+        player.RotateCurrentBuilding();
+    }
 }

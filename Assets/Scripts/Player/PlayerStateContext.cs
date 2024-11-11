@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using Thiruvizha.Player.States;
 using Thiruvizha.Grids;
+using System;
 
 namespace Thiruvizha.Player
 {
@@ -28,6 +29,10 @@ namespace Thiruvizha.Player
         //For states
         public LayerMask ignoreBuildings;
         public LayerMask UI;
+
+        //Events
+        public Action OnMoveStateEntered;
+        public Action OnMoveStateExited;
 
 
         public enum PlayerState
@@ -87,6 +92,11 @@ namespace Thiruvizha.Player
                     return PlayerState.move;
             }
             return PlayerState.notThere;
+        }
+
+        public void RotateCurrentBuilding()
+        {
+            selectedBuilding.RotateClockWise();
         }
     }
 }

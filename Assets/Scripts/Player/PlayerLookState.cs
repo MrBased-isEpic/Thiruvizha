@@ -62,7 +62,7 @@ namespace Thiruvizha.Player.States
                             break;
 
                         case UnityEngine.InputSystem.TouchPhase.Stationary:
-                            Debug.Log("touch is stationary updating");
+                            //Debug.Log("touch is stationary updating");
                             if (!isPickingUp)
                             {
                                 if (holdDuration > player.pickDetectionTime)
@@ -83,7 +83,7 @@ namespace Thiruvizha.Player.States
                                 }
                                 else
                                 {
-                                    Debug.Log("hold timer updating");
+                                    //Debug.Log("hold timer updating");
                                     holdDuration += Time.deltaTime;
                                 }
                             }
@@ -97,7 +97,7 @@ namespace Thiruvizha.Player.States
                                 else
                                 {
                                     pickTimer += Time.deltaTime;
-                                    Debug.Log("pick timer updating");
+                                    //Debug.Log("pick timer updating");
                                     player.selectedBuilding.SetArrowFill(pickTimer,player.pickTime);
                                 }
 

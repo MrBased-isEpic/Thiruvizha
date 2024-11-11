@@ -1,4 +1,6 @@
+using Thiruvizha.Player;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Thiruvizha.Grids
 {
@@ -12,6 +14,7 @@ namespace Thiruvizha.Grids
         
 
         public NPC.NPCSpawner spawner;
+        private PlayerStateContext player;
 
         [SerializeField] private PlaceableSO placeableSO;
 
@@ -23,10 +26,14 @@ namespace Thiruvizha.Grids
         {
             grid = GetComponent<Grid>();
             instance = this;
+
+            player = GameManager.instance.player;
         }
 
         private void Start()
         {
+            player.OnMoveStateEntered += TurnOnPlacableVisuals;
+            player.OnMoveStateExited += TurnOffPlacableVisuals;
             InstantiateGrid();
         }
 
@@ -99,7 +106,6 @@ namespace Thiruvizha.Grids
                 }
             }
         }
-
         public bool CheckBuildingPositionisValid(BaseBuilding building)
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
@@ -160,7 +166,6 @@ namespace Thiruvizha.Grids
             Debug.Log("Checked ok");
             return true;
         }
-
         private void PlaceBaseTile(BaseBuilding building)
         {
             Vector3 OGPos = building.transform.position;
@@ -233,7 +238,6 @@ namespace Thiruvizha.Grids
 
             building.transform.position = grid.CellToWorld(centerPos);
         }
-
         private void ClearMapTiles(BaseBuilding building)
         {
             Vector3 OGPos = building.transform.position;
@@ -247,10 +251,24 @@ namespace Thiruvizha.Grids
             building.transform.rotation = Quaternion.Euler(OGRot);
 
         }
-
         public Vector3Int GetWorldToCellPosition(Vector3 position)
         {
             return grid.WorldToCell(position);
+        }
+
+        public void TurnOnPlacableVisuals()
+        {
+            foreach (BaseTile tile in mapTiles)
+            {
+                tile.TurnOnPlacableVisual();
+            }
+        }
+        public void TurnOffPlacableVisuals()
+        {
+            foreach (BaseTile tile in mapTiles)
+            {
+                tile.TurnOnPlacableVisual();
+            }
         }
     }
 }

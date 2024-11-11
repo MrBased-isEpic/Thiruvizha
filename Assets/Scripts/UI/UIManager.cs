@@ -10,12 +10,14 @@ namespace Thiruvizha.UI
 
         // UI Elements
         [SerializeField] private PaletteUI Palette;
+        [SerializeField] private RotatorUI Rotator;
         [SerializeField] private Button PaletteButton;
         [SerializeField] private Button ClosePaletteButton;
 
         //Events
         public Action OnShopOpen;
         public Action OnItemPicked;
+        public Action OnRotateBuildingTimer;
 
         private void Awake()
         {
@@ -27,6 +29,7 @@ namespace Thiruvizha.UI
             PaletteButton.onClick.AddListener(() => { OpenPalette(); });
             ClosePaletteButton.onClick.AddListener(() => { ClosePalette(); });
             Palette.OnItemDragDetected += ClosePalette;
+            Rotator.OnRotateTimer += OnRotateTimer;
             InitializeUI();
         }
 
@@ -34,8 +37,8 @@ namespace Thiruvizha.UI
         {
             Palette.gameObject.SetActive(false);
             PaletteButton.gameObject.SetActive(true);
+            Rotator.gameObject.SetActive(false);
         }
-
         private void OpenPalette()
         {
             Palette.gameObject.SetActive(true);
@@ -47,6 +50,18 @@ namespace Thiruvizha.UI
             Palette.gameObject.SetActive(false);
             PaletteButton.gameObject.SetActive(true);
             OnItemPicked?.Invoke();
+        }
+        public void TurnOnRotator()
+        {
+            Rotator.gameObject.SetActive(true);
+        }
+        public void TurnOffRotator()
+        {
+            Rotator.gameObject.SetActive(false);
+        }
+        private void OnRotateTimer()
+        {
+            OnRotateBuildingTimer?.Invoke();
         }
     }
 }

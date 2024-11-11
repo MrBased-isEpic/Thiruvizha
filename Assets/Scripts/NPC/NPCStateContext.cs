@@ -41,7 +41,7 @@ namespace Thiruvizha.NPC
 
         public event EventHandler OnExitReached;
 
-        private List<BaseBuilding.BuildingType> searchForTypes = new List<BaseBuilding.BuildingType>();
+        public List<BaseBuilding.BuildingType> searchForTypes = new List<BaseBuilding.BuildingType>();
         private NavMeshAgent agent;
 
         //Search variables
@@ -130,7 +130,7 @@ namespace Thiruvizha.NPC
             switch (state)
             {
                 case NPCState.idle:
-                    _energy -= (float)(Time.deltaTime * .03);
+                    _energy -= (float)(Time.deltaTime * .01);
 
                     if (agent.remainingDistance <= agent.stoppingDistance)
                     {
@@ -189,7 +189,10 @@ namespace Thiruvizha.NPC
 
             foreach (BaseBuilding building in buildings) // This is the list of buildings from GetBuildingsInRange().
             {
-                if (building == null) continue;
+                if (building == null)
+                {
+                    continue;
+                }
                 foreach (BaseBuilding.BuildingType type in searchForTypes) // For every type of building we are looking for.
                 {
                     if (building.buildingTilesSO.buildingType == type) // If the building is of that type,
@@ -203,6 +206,7 @@ namespace Thiruvizha.NPC
                     }
                 }
             }
+            //Debug.Log("Not Found");
         }
         private void SwitchState(NPCState state)
         {
@@ -215,6 +219,7 @@ namespace Thiruvizha.NPC
                     agent.SetDestination(NPCManager.instance.GetDestination(destination).position);
                     break;
                 case NPCState.searching:
+                    agent.SetDestination(transform.position);
                     turnAngle = 0;
                     startingYAngle = transform.rotation.eulerAngles.y;
                     break;
@@ -236,7 +241,7 @@ namespace Thiruvizha.NPC
                 {
                     if (results[i] != null)
                     {
-                        BaseBuilding building = results[i].gameObject.GetComponent<BaseBuilding>();
+                        BaseBuilding building = results[i].gameObject.GetComponentInParent<BaseBuilding>();
                         buildings[i] = building;
                     }
                 }

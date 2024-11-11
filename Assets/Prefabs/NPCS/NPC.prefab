@@ -70,6 +70,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   energy: 0
   meshRenderer: {fileID: 9165556154018734763}
+  searchForTypes: 
   BaseBuildingLM:
     serializedVersion: 2
     m_Bits: 8
