@@ -33,6 +33,7 @@ namespace Thiruvizha.NPC
         }
 
         [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private Transform RayCastOrigin;
 
         //Events
         private Action OnEnergyLow;
@@ -142,8 +143,10 @@ namespace Thiruvizha.NPC
                 case NPCState.searching:
                     if (turnAngle > 90)
                     {
-                        BaseBuilding[] buildings = GetBuildingsInRange();
-                        SearchForBuildings(searchForTypes);
+                        if (SearchForBuildings(searchForTypes))
+                        {
+                            SwitchState(NPCState.moving);
+                        }
                         turnAngle = 0;
                         startingYAngle = transform.rotation.eulerAngles.y;
                     }
@@ -183,7 +186,7 @@ namespace Thiruvizha.NPC
 
             }
         }
-        private void SearchForBuildings(List<BaseBuilding.BuildingType> buildingTypes)
+        private bool SearchForBuildings(List<BaseBuilding.BuildingType> buildingTypes)
         {
             BaseBuilding[] buildings = GetBuildingsInRange();
 
@@ -193,20 +196,56 @@ namespace Thiruvizha.NPC
                 {
                     continue;
                 }
-                foreach (BaseBuilding.BuildingType type in searchForTypes) // For every type of building we are looking for.
+                foreach (BaseBuilding.BuildingType type in buildingTypes) // For every type of building we are looking for,
                 {
                     if (building.buildingTilesSO.buildingType == type) // If the building is of that type,
                     {
-                        if (Vector3.Angle(transform.forward, building.transform.position - transform.position) <= viewAngle) // If the building within the visible range,
+                        Vector3 dirToBuilding = building.transform.position - transform.forward;
+                        if(type == BaseBuilding.BuildingType.shop)
+                            Debug.Log("Checking for FOV");
+                        if (Vector3.Angle(transform.forward, dirToBuilding) <= viewAngle) // And if its within the visible range,
                         {
-                            agent.SetDestination(building.transform.position);
-                            targetBuilding = building;
-                            SwitchState(NPCState.moving);
+                            RaycastHit hit;
+                            if (type == BaseBuilding.BuildingType.shop)
+                                Debug.Log("Casting Ray");
+                            //Physics.Raycast(transform.position, dirToBuilding,out hit, viewRadius);
+                            if (Physics.Raycast(RayCastOrigin.position, dirToBuilding, out hit, viewRadius)) // And is not hidden by another building,
+                            {
+                                if (type == BaseBuilding.BuildingType.shop)
+                                    Debug.Log("Checking for hidden");
+                                Debug.Log(building.name);
+                                Debug.Log(hit.collider.gameObject.name);
+                                if (building == hit.collider.gameObject.GetComponent<BaseBuilding>())
+                                {
+                                    if (type == BaseBuilding.BuildingType.shop)
+                                        Debug.Log("Building is Confirmed");
+                                    agent.SetDestination(building.transform.position);
+                                    targetBuilding = building;
+                                    return true;
+                                }
+                                else
+                                {
+                                    if (type == BaseBuilding.BuildingType.shop)
+                                    {
+                                        //Debug.Log(building.name + " not equal to " + hit.collider.gameObject.GetComponent<BaseBuilding>().name);
+                                    }
+                                }   
+                            }
+                            else
+                            {
+                                if (type == BaseBuilding.BuildingType.shop)
+                                    Debug.Log("Casting did not hit");
+                            }
+                        }
+                        else
+                        {
+                            if (type == BaseBuilding.BuildingType.shop)
+                                Debug.Log("Outside FOV");
                         }
                     }
                 }
             }
-            //Debug.Log("Not Found");
+            return false;
         }
         private void SwitchState(NPCState state)
         {

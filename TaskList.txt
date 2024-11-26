@@ -1,0 +1,2 @@
+Money System
+NPC Bug, make him get its vision blocked.
