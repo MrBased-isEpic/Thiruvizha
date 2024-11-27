@@ -9,6 +9,7 @@ namespace Thiruvizha.Grids
         public float gridOrientation = 0;
         public BuildingTilesSO buildingTilesSO;
         public Transform ShapeTransforms;
+        public Transform RayCastTarget;
 
         public Action OnRotation;
 

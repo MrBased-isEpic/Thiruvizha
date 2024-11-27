@@ -34,6 +34,7 @@ namespace Thiruvizha.NPC
 
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private Transform RayCastOrigin;
+        [SerializeField] private Transform RayCastDirIndicator;
 
         //Events
         private Action OnEnergyLow;
@@ -49,7 +50,7 @@ namespace Thiruvizha.NPC
         public LayerMask BaseBuildingLM;
         private BaseBuilding targetBuilding;
 
-        public float viewAngle;
+        public float FOV;
         public float viewRadius;
         private float startingYAngle;
         private float turnAngle = 0;
@@ -200,52 +201,49 @@ namespace Thiruvizha.NPC
                 {
                     if (building.buildingTilesSO.buildingType == type) // If the building is of that type,
                     {
-                        Vector3 dirToBuilding = building.transform.position - transform.forward;
-                        if(type == BaseBuilding.BuildingType.shop)
-                            Debug.Log("Checking for FOV");
-                        if (Vector3.Angle(transform.forward, dirToBuilding) <= viewAngle) // And if its within the visible range,
+                        Vector3 dirToBuilding = (RayCastOrigin.position - building.RayCastTarget.position).normalized;
+                        DebugNpc(RayCastOrigin.forward.ToString(), type);
+                        DebugNpc(dirToBuilding.ToString(), type);
+                        DebugNpc("Checking for FOV : " + MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180), type);
+
+
+                        if (MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180) < FOV / 2) // And if its within the visible range,
                         {
                             RaycastHit hit;
-                            if (type == BaseBuilding.BuildingType.shop)
-                                Debug.Log("Casting Ray");
+                            DebugNpc("Casting Ray", type);
                             //Physics.Raycast(transform.position, dirToBuilding,out hit, viewRadius);
-                            if (Physics.Raycast(RayCastOrigin.position, dirToBuilding, out hit, viewRadius)) // And is not hidden by another building,
+                            RayCastDirIndicator.forward = -dirToBuilding;
+                            if (Physics.Raycast(RayCastOrigin.position, -dirToBuilding, out hit, viewRadius)) // And is not hidden by another building,
                             {
-                                if (type == BaseBuilding.BuildingType.shop)
-                                    Debug.Log("Checking for hidden");
-                                Debug.Log(building.name);
-                                Debug.Log(hit.collider.gameObject.name);
-                                if (building == hit.collider.gameObject.GetComponent<BaseBuilding>())
+                                DebugNpc("Checking for hidden", type);
+                                DebugNpc(building.name, type);
+                                DebugNpc(hit.collider.gameObject.name, type);
+                                if (building == hit.collider.gameObject.GetComponentInParent<BaseBuilding>())
                                 {
-                                    if (type == BaseBuilding.BuildingType.shop)
-                                        Debug.Log("Building is Confirmed");
+                                    DebugNpc("Building is Confirmed", type);
                                     agent.SetDestination(building.transform.position);
                                     targetBuilding = building;
                                     return true;
                                 }
-                                else
-                                {
-                                    if (type == BaseBuilding.BuildingType.shop)
-                                    {
-                                        //Debug.Log(building.name + " not equal to " + hit.collider.gameObject.GetComponent<BaseBuilding>().name);
-                                    }
-                                }   
                             }
                             else
                             {
-                                if (type == BaseBuilding.BuildingType.shop)
-                                    Debug.Log("Casting did not hit");
+                                DebugNpc("Casting did not hit", type);
                             }
                         }
                         else
                         {
-                            if (type == BaseBuilding.BuildingType.shop)
-                                Debug.Log("Outside FOV");
+                            DebugNpc("Outside FOV : " + MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180), type);
                         }
                     }
                 }
             }
             return false;
+        }
+        private void DebugNpc(string message, BaseBuilding.BuildingType type)
+        {
+            if (type == BaseBuilding.BuildingType.activity)
+                Debug.Log(message + " : " + type.ToString());
         }
         private void SwitchState(NPCState state)
         {
@@ -297,6 +295,7 @@ namespace Thiruvizha.NPC
         {
             _energy -= Time.deltaTime * .4f;
         }
+
 
         public void SetDestination(NPCSpawner.Type destination)
         {

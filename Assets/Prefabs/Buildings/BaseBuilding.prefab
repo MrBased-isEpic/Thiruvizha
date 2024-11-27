@@ -150,6 +150,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2852035751114775112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1831341011935997292}
+  m_Layer: 3
+  m_Name: RayCastTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1831341011935997292
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2852035751114775112}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6829572017947961375}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4013413166091135584
 GameObject:
   m_ObjectHideFlags: 0
@@ -593,6 +624,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -761,6 +795,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 7531099407743979347}
+    - targetCorrespondingSourceObject: {fileID: 705107689151796044, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1831341011935997292}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 7578041594241551857, guid: 2a9dbb9f0d6f5464a8c1918542f6d932,
         type: 3}
@@ -786,10 +824,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canBuildingBePlaced: 1
+  NotPlacableVisual: {fileID: 0}
   gridPosition: {x: 0, y: 0}
   gridOrientation: 0
   buildingTilesSO: {fileID: 11400000, guid: 5a68f63c72640da42a179f8e74f14d0c, type: 2}
   ShapeTransforms: {fileID: 7531099407743979347}
+  RayCastTarget: {fileID: 1831341011935997292}
   lastValidOrientation: 0
   UI: {fileID: 2898593847126276045}
 --- !u!4 &6829572017947961375 stripped
