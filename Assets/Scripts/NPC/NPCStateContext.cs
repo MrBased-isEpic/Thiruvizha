@@ -202,38 +202,20 @@ namespace Thiruvizha.NPC
                     if (building.buildingTilesSO.buildingType == type) // If the building is of that type,
                     {
                         Vector3 dirToBuilding = (RayCastOrigin.position - building.RayCastTarget.position).normalized;
-                        DebugNpc(RayCastOrigin.forward.ToString(), type);
-                        DebugNpc(dirToBuilding.ToString(), type);
-                        DebugNpc("Checking for FOV : " + MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180), type);
-
 
                         if (MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180) < FOV / 2) // And if its within the visible range,
                         {
                             RaycastHit hit;
-                            DebugNpc("Casting Ray", type);
-                            //Physics.Raycast(transform.position, dirToBuilding,out hit, viewRadius);
                             RayCastDirIndicator.forward = -dirToBuilding;
                             if (Physics.Raycast(RayCastOrigin.position, -dirToBuilding, out hit, viewRadius)) // And is not hidden by another building,
                             {
-                                DebugNpc("Checking for hidden", type);
-                                DebugNpc(building.name, type);
-                                DebugNpc(hit.collider.gameObject.name, type);
                                 if (building == hit.collider.gameObject.GetComponentInParent<BaseBuilding>())
                                 {
-                                    DebugNpc("Building is Confirmed", type);
                                     agent.SetDestination(building.transform.position);
                                     targetBuilding = building;
                                     return true;
                                 }
                             }
-                            else
-                            {
-                                DebugNpc("Casting did not hit", type);
-                            }
-                        }
-                        else
-                        {
-                            DebugNpc("Outside FOV : " + MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180), type);
                         }
                     }
                 }

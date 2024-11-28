@@ -25,6 +25,16 @@ public class GameManager : MonoBehaviour
         player.OnMoveStateExited += TurnOffPlacableVisuals;
     }
 
+    public void CleanUp()
+    {
+        UIManager.instance.OnItemPicked -= GivePlayerABuilding;
+        UIManager.instance.OnShopOpen -= OpenShop;
+        UIManager.instance.OnRotateBuildingTimer -= RotatePlayerBuilding;
+
+        player.OnMoveStateEntered -= TurnOnPlacableVisuals;
+        player.OnMoveStateExited -= TurnOffPlacableVisuals;
+    }
+
     private void TurnOnPlacableVisuals()
     {
         UIManager.instance.TurnOnRotator();
