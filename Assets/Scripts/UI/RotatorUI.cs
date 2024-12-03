@@ -26,15 +26,17 @@ namespace Thiruvizha.UI
 
         private void Update()
         {
-            if (isTimerOn)
+            if (!isTimerOn)
             {
-                timer -= Time.deltaTime;
-                if(timer < 0)
-                {
-                    OnRotateTimer?.Invoke();
-                    timer = RotateTime;
-                }
+                return;
             }
+
+            timer -= Time.deltaTime;
+            if(timer < 0)
+            {
+                OnRotateTimer?.Invoke();
+                timer = RotateTime;
+            } 
         }
     }
 }

@@ -105,7 +105,7 @@ namespace Thiruvizha.Player.States
                         if (!GridManager.instance.CheckBuildingPositionisValid(player.selectedBuilding))//If Tile is not Valid
                         {
                             GridManager.instance.PlaceBaseBuilding(player.selectedBuilding, new Vector3Int(player.selectedBuilding.gridPosition.x, 0, player.selectedBuilding.gridPosition.y));
-                            player.selectedBuilding.RotateY(player.selectedBuilding.lastValidOrientation);
+                            //player.selectedBuilding.RotateY(player.selectedBuilding.lastValidOrientation);
                             //Debug.Log("Position was not valid");
 
                         }

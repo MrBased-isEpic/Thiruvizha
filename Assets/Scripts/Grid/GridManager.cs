@@ -20,6 +20,7 @@ namespace Thiruvizha.Grids
 
         private BaseTile[,] mapTiles;
 
+        public static int worldLength = 15;
         public static GridManager instance;
 
         private void Awake()
@@ -40,21 +41,23 @@ namespace Thiruvizha.Grids
         private void InstantiateGrid()
         {
 
-            mapTiles = new BaseTile[10,10];
-            for (int x = 0; x < 10; x++)// Ten times on the x
+            mapTiles = new BaseTile[worldLength,worldLength];
+            for (int x = 0; x < worldLength; x++)// Ten times on the x
             {
-                for (int y = 0; y < 10; y++)// Ten times on the y
+                for (int y = 0; y < worldLength; y++)// Ten times on the y
                 {  
                     BaseTile tile = Instantiate(BaseTile, grid.CellToWorld(new Vector3Int(x, 0, y)), Quaternion.identity,this.transform).gameObject.GetComponent<BaseTile>();          
                     mapTiles[x,y] = tile;
-                    tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[x * 10 + y];
+                    tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[x * worldLength + y];
                     //Debug.Log(placeableSO.canBuildingBePlacedFlat[x * 10 + y] +" : "+ tile.canBuildingBePlaced);
                 }
             }
 
+            Debug.Log(placeableSO.positions.Count);
             for(int i = 0; i < placeableSO.positions.Count; i++)
             {
                 BaseBuilding baseBuilding = Instantiate(placeableSO.buildingTransforms[i]).GetComponent<BaseBuilding>();
+                baseBuilding.transform.rotation = Quaternion.Euler(0, placeableSO.yRotations[i],0);
                 PlaceBaseBuilding(baseBuilding, grid.WorldToCell(placeableSO.positions[i]));
             }
         }
@@ -71,6 +74,8 @@ namespace Thiruvizha.Grids
             building.gridPosition = new Vector2Int((int)building.transform.position.x, (int)building.transform.position.z);
 
             building.gridOrientation = building.transform.rotation.eulerAngles.y;
+
+            building.OnBuildingPlaced?.Invoke();
         }
         public void PlaceBaseBuilding(BaseBuilding building, Vector3Int targetPos)
         {
@@ -110,7 +115,7 @@ namespace Thiruvizha.Grids
         {
             Vector3Int targetCenterPos = grid.WorldToCell(building.transform.position);
 
-            if((targetCenterPos.x < 0 || targetCenterPos.x >= 10 || (targetCenterPos.z < 0 || targetCenterPos.z >= 10))) return false;
+            if((targetCenterPos.x < 0 || targetCenterPos.x >= worldLength || (targetCenterPos.z < 0 || targetCenterPos.z >= worldLength))) return false;
 
             PlacePlane.transform.position = grid.CellToWorld(targetCenterPos);
 
@@ -139,7 +144,7 @@ namespace Thiruvizha.Grids
 
             foreach (Transform target in building.ShapeTransforms)
             {
-                if ((target.position.x < 0 || target.position.x >= 10 || (target.position.z < 0 || target.position.z >= 10))) return false;
+                if ((target.position.x < 0 || target.position.x >= worldLength || (target.position.z < 0 || target.position.z >= worldLength))) return false;
 
 
                 Vector3Int CenterPos = grid.WorldToCell(target.position); 
@@ -179,7 +184,7 @@ namespace Thiruvizha.Grids
             {
                 tile = Instantiate(BaseTile, centerPos, Quaternion.identity,this.transform).GetComponent<BaseTile>();
                 mapTiles[centerPos.x, centerPos.z] = tile;
-                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[centerPos.x * 10 + centerPos.z];
+                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[centerPos.x * worldLength + centerPos.z];
             }
 
             building.transform.position = centerPos;
@@ -193,7 +198,7 @@ namespace Thiruvizha.Grids
 
                 tile = Instantiate(BaseTile, spawnPos, Quaternion.identity, this.transform).GetComponent<BaseTile>();
                 mapTiles[spawnPos.x, spawnPos.z] = tile;
-                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[spawnPos.x * 10 + spawnPos.z]; 
+                tile.canBuildingBePlaced = placeableSO.canBuildingBePlacedFlat[spawnPos.x * worldLength + spawnPos.z]; 
 
             }
 
@@ -267,7 +272,7 @@ namespace Thiruvizha.Grids
         {
             foreach (BaseTile tile in mapTiles)
             {
-                tile.TurnOnPlacableVisual();
+                tile.TurnOffPlacableVisual();
             }
         }
     }

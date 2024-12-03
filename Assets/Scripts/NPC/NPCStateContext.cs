@@ -3,6 +3,7 @@ using Thiruvizha.Grids;
 using UnityEngine;
 using UnityEngine.AI;
 using System;
+using UnityEngine.UIElements;
 
 
 namespace Thiruvizha.NPC
@@ -16,16 +17,16 @@ namespace Thiruvizha.NPC
             set
             {
                 energy = value;
-                energy = Mathf.Clamp(value, -1, 1);
-                if (energy < -.7f)
+                energy = Mathf.Clamp(value, 0, 1);
+                if (energy <= 0)
                 {
                     OnEnergyLow?.Invoke();
                 }
-                else if (energy >= .7f)
+                else if (energy >= 1)
                 {
                     OnEnergyHigh?.Invoke();
                 }
-                else if (energy < .5f)
+                else if (energy > .5f)
                 {
                     OnEnergyNeutral?.Invoke();
                 }
@@ -34,7 +35,6 @@ namespace Thiruvizha.NPC
 
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private Transform RayCastOrigin;
-        [SerializeField] private Transform RayCastDirIndicator;
 
         //Events
         private Action OnEnergyLow;
@@ -88,20 +88,11 @@ namespace Thiruvizha.NPC
 
         private void OnEnergyNeuThresholdReached()
         {
-            //if (searchForTypes.Contains(BaseBuilding.BuildingType.shop))
-            //{
-            //    searchForTypes.Remove(BaseBuilding.BuildingType.shop);
-            //}
-            //if (searchForTypes.Contains(BaseBuilding.BuildingType.ride))
-            //    searchForTypes.Remove(BaseBuilding.BuildingType.ride);
+            
         }
 
         private void OnEnergyMinThresholdReached()
         {
-            //if (!searchForTypes.Contains(BaseBuilding.BuildingType.shop))
-            //{
-            //    searchForTypes.Add(BaseBuilding.BuildingType.shop);
-            //}
             switch (state)
             {
                 case NPCState.idle:
@@ -112,18 +103,12 @@ namespace Thiruvizha.NPC
 
         private void OnEnergyMaxThresholdReached()
         {
-            //if (!searchForTypes.Contains(BaseBuilding.BuildingType.ride))
-            //{
-            //    searchForTypes.Add(BaseBuilding.BuildingType.ride);
-            //}
             switch (state)
             {
                 case NPCState.interacting:
+                    BankAcc.instance.SendMoney(1000);
                     SwitchState(NPCState.idle);
                     break;
-                //case NPCState.idle:
-                //    SwitchState(NPCState.searching);
-                //    break;
             }
         }
 
@@ -132,7 +117,7 @@ namespace Thiruvizha.NPC
             switch (state)
             {
                 case NPCState.idle:
-                    _energy -= (float)(Time.deltaTime * .01);
+                    _energy -= (float)(Time.deltaTime * .1f);
 
                     if (agent.remainingDistance <= agent.stoppingDistance)
                     {
@@ -166,6 +151,13 @@ namespace Thiruvizha.NPC
 
 
                 case NPCState.interacting:
+
+                    if(targetBuilding == null)
+                    {
+                        SwitchState(NPCState.idle);
+                        Debug.Log("Building became null : " + searchForTypes[0].ToString());
+                        break;
+                    }
                     targetBuilding.Interact(this);
                     break;
             }
@@ -206,12 +198,10 @@ namespace Thiruvizha.NPC
                         if (MathF.Abs((Vector3.Angle(RayCastOrigin.forward, dirToBuilding)) - 180) < FOV / 2) // And if its within the visible range,
                         {
                             RaycastHit hit;
-                            RayCastDirIndicator.forward = -dirToBuilding;
                             if (Physics.Raycast(RayCastOrigin.position, -dirToBuilding, out hit, viewRadius)) // And is not hidden by another building,
                             {
                                 if (building == hit.collider.gameObject.GetComponentInParent<BaseBuilding>())
                                 {
-                                    agent.SetDestination(building.transform.position);
                                     targetBuilding = building;
                                     return true;
                                 }
@@ -226,26 +216,6 @@ namespace Thiruvizha.NPC
         {
             if (type == BaseBuilding.BuildingType.activity)
                 Debug.Log(message + " : " + type.ToString());
-        }
-        private void SwitchState(NPCState state)
-        {
-            this.state = state;
-
-            switch (this.state)
-            {
-                case NPCState.idle:
-                    agent.speed = .6f;
-                    agent.SetDestination(NPCManager.instance.GetDestination(destination).position);
-                    break;
-                case NPCState.searching:
-                    agent.SetDestination(transform.position);
-                    turnAngle = 0;
-                    startingYAngle = transform.rotation.eulerAngles.y;
-                    break;
-                case NPCState.moving:
-                    agent.speed = 3.5f;
-                    break;
-            }
         }
 
         private BaseBuilding[] GetBuildingsInRange()
@@ -278,6 +248,44 @@ namespace Thiruvizha.NPC
             _energy -= Time.deltaTime * .4f;
         }
 
+        private void SwitchState(NPCState state)
+        {
+            this.state = state;
+
+            switch (this.state)
+            {
+                case NPCState.idle:
+
+
+                    if(targetBuilding != null)
+                    {
+                        targetBuilding.OnBuildingPlaced -= OnBuildingPositionChanged;
+                        targetBuilding = null;
+                    }
+                    agent.speed = .6f;
+                    agent.SetDestination(NPCManager.instance.GetDestination(destination).position);
+                    break;
+                case NPCState.searching:
+                    agent.SetDestination(transform.position);
+                    turnAngle = 0;
+                    startingYAngle = transform.rotation.eulerAngles.y;
+                    break;
+                case NPCState.moving:
+
+                    if (targetBuilding != null)
+                    {
+                        agent.SetDestination(targetBuilding.transform.position);
+                        targetBuilding.OnBuildingPlaced += OnBuildingPositionChanged;
+                    }
+                    agent.speed = 3.5f;
+                    break;
+            }
+        }
+
+        private void OnBuildingPositionChanged()
+        {
+            SwitchState(NPCState.moving);
+        }
 
         public void SetDestination(NPCSpawner.Type destination)
         {
@@ -300,7 +308,7 @@ namespace Thiruvizha.NPC
         }
         public void InitializeEnergy()
         {
-            _energy = UnityEngine.Random.Range(-.65f, -.67f);
+            _energy = UnityEngine.Random.Range(0.5f, 1f);
         }
 
     }

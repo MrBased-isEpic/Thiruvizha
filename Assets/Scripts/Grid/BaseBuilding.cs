@@ -15,6 +15,8 @@ namespace Thiruvizha.Grids
 
         public float lastValidOrientation = 0;
 
+        public Action OnBuildingPlaced;
+
         public enum BuildingType
         {
             shop,
